@@ -1,0 +1,18 @@
+
+(executable
+  (public_name ReduDev)
+  (libraries Redu)
+  (modules ReduDev)
+  (link_flags -cclib -framework -cclib Cocoa -cclib -framework -cclib Carbon -cclib -framework -cclib CoreImage)
+  (preprocess (pps belt.ppx fluid.ppx)))
+
+(executable
+  (public_name ReduProd)
+  (modules ReduProd)
+  (libraries Redu)
+  (link_flags -cclib -framework -cclib Cocoa -cclib -framework -cclib Carbon -cclib -framework -cclib CoreImage)
+  (preprocess (pps belt.ppx fluid.ppx)))
+
+
+
+

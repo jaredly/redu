@@ -1,0 +1,31 @@
+{
+  "name": "redu",
+  "version": "1.0",
+  "private": true,
+  "esy": {
+    "build": "dune build -p #{self.name}",
+    "sandboxEnv": {
+      // "FLUID_DEBUG": "true"
+    }
+  },
+  "scripts": {
+    "start": "dune exec ReduDev",
+    "pkg": "sh -c 'cd bundler && ./bundle.sh'"
+  },
+  "dependencies": {
+    "ocaml": ">=4.7.0",
+    "@opam/dune": "*",
+    "@opam/reason": "*",
+    "@opam/odate": "*",
+    "let-anything-esy": "*",
+    "fluid": "jaredly/fluid",
+    "belt": "jaredly/belt",
+    "RexJson": "jaredly/rex-json#esy"
+  },
+  "resolutions": {
+    "fluid": "link:../../explorations/fluid/esy.json",
+    "@opam/odate": "link:../../fork/odate/package.json",
+    "RexJson": "link:../../libs/rex-json/esy.json",
+    "let-anything-esy": "link:../../tools/let-anything/publish-esy/package.json"
+  }
+}
