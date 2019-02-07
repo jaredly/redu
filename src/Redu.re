@@ -7,6 +7,22 @@ open Fluid.Hooks;
 
 type status = Initial | Processing | Processed;
 
+let parseLine = line => line == "" ? None : {
+  let numb = Buffer.create(10);
+  let fileb = Buffer.create(100);
+  let ln = String.length(line);
+  let rec loop = (i, pos) => i >= ln ? {
+    (Buffer.contents(numb)->int_of_string, Buffer.contents(fileb))
+  } : switch (pos, line.[i]) {
+    | (`Initial, '0'..'9') => Buffer.add_char(numb, line.[i]); loop(i + 1, `Initial)
+    | (`Initial, _) => loop(i, `Mid)
+    | (`Mid, ' ' | '\t') => loop(i + 1, `Mid)
+    | (`Mid, _) => loop(i, `Last)
+    | (`Last, m) => Buffer.add_char(fileb, m); loop(i + 1, `Last)
+  };
+  Some(loop(0, `Initial))
+};
+
 let%component main = (hooks) => {
   let%hook (status, setStatus) = useState(Initial);
   let%hook (directory, setDirectory) = useState("/Users/jared/Downloads");
@@ -19,7 +35,12 @@ let%component main = (hooks) => {
     Commands.execCommand("/usr/bin/du", ["-mHd" ++ string_of_int(depth), directory], ((stdout, stderr, exitCode)) => {
       Printf.printf("OUT:\n%s\nERR:\n%s\nCODE: %d\n", stdout, stderr, exitCode);
       print_endline("Did it!")
-      setResults(stdout);
+      let lines = String.split_on_char('\n', stdout)
+      ->Belt.List.keepMap(parseLine)
+      ->Belt.List.sort((a, b) => fst(b) - fst(a))
+      ->Belt.List.map(((size, name)) => Printf.sprintf("%d\t\t%s", size, name))
+      |> String.concat("\n");
+      setResults(lines);
       setStatus(Processed);
     });
     ()
