@@ -1,5 +1,5 @@
 
-module CmdTracker = FluidMac.Tracker({type arg = (string, string, int); let name = "redu_execCommand_cb"; let once = true;});
+module CmdTracker = FluidMac.Tracker({type arg = (string, string, int); let name = "redu_execCommand_cb"; let once = true; type res = unit;});
 external execCommand: (~cwd: string, ~cmd: string, array(string), CmdTracker.callbackId) => unit = "redu_execCommand";
 let execCommand = (~cwd=".", ~cmd, args, cb) => execCommand(~cwd, ~cmd, Array.of_list(args), CmdTracker.track(cb));
 

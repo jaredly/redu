@@ -12,8 +12,6 @@ void redu_execCommand(value cwd, value command, value args, value cb_v) {
 
   NSPipe *stdout = [NSPipe pipe];
   NSPipe *stderr = [NSPipe pipe];
-  // NSFileHandle *stdoutf = stdout.fileHandleForReading;
-  // NSFileHandle *stdoutf = stdout.fileHandleForReading;
 
   NSTask *task = [[NSTask alloc] init];
   task.arguments = arguments;
