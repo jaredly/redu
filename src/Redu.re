@@ -127,6 +127,8 @@ let showItem = (state, path) => {
 
 let%component columned = hooks => {
   let%hook (state, dispatch) = useReducer(None, reduce);
+  let%hook (selected, setSelected) = useState([]);
+  let%hook browser = useRef(None);
 
   <view layout={Layout.style(~minWidth=200., ~minHeight=200., ~alignItems=AlignCenter, ())}>
     <button onPress={() => {
@@ -142,6 +144,7 @@ let%component columned = hooks => {
           <view>
             <text contents=state.root />
             <columnBrowser
+              ref={browser}
               isLeafItem={path => !Files.isDirectory(path == "" ? state.root : path)}
               childOfItem={((path, index)) => {
                 let path = path == "" ? state.root : path;
@@ -167,11 +170,44 @@ let%component columned = hooks => {
                   0
                 | Some(children) => List.length(children)
               }}}
-              layout={Layout.style(~width=600., ~height=300., ())}
+              layout={Layout.style(~width=1400., ~height=600., ())}
             />
         </view>
       }
     }
+    <button onPress={() => {
+      switch (browser^) {
+        | None => ()
+        | Some(browser) =>
+          print_endline("Getting here");
+          switch (FluidMac.ColumnBrowser.selectedCell(browser)) {
+            | None => print_endline("No selection")
+            | Some(selection) =>
+              if (Belt.List.has(selected, selection, (==))) {
+                setSelected(selected->Belt.List.keep((!=)(selection)));
+              } else {
+                setSelected([selection] @ selected);
+              }
+          }
+      }
+    }} title={"Toggle selected"} />
+    {
+      switch state {
+        | None => Fluid.Null
+        | Some(state) =>
+          str(Printf.sprintf("%d selected, %0.2fg total size", List.length(selected), selected->Belt.List.reduce(0., (total, path) => {
+            switch (state.sizes->Belt.Map.String.get(path)) {
+              | None => total
+              | Some(size) => total +. float_of_int(size) /. 1000_000.
+            }
+          })))
+      }
+    }
+    <text
+      selectable={true}
+      contents={selected |> String.concat("\n")}
+      layout={Layout.style(~alignSelf=AlignStretch, ~minHeight=100., ())}
+    />
   </view>
 };
 
